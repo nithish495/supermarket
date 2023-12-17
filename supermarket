@@ -1,0 +1,33 @@
+// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+contract Supermarket {
+    address public administrator;
+    mapping(uint256 => uint256) public productSums;
+
+    constructor() {
+        administrator = msg.sender;
+    }
+
+    modifier onlyAdministrator() {
+        require(msg.sender == administrator, "Only the administrator can perform this action");
+        _;
+    }
+
+    function setProductSum(uint256 productId, uint256 quantity) external onlyAdministrator {
+        
+        productSums[productId] += quantity;
+    }
+
+    function processOrder(uint256 productId, uint256 requestedSum) external {
+        assert(requestedSum >= 20); // Minimum quantity to set is 20 
+
+        if (requestedSum > productSums[productId]) {
+            revert("Requested quantity exceeds available stock");
+        }
+
+        assert(productSums[productId] >= requestedSum);
+
+        productSums[productId] -= requestedSum;
+    }
+}
